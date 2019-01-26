@@ -1,0 +1,176 @@
+/** 元素添加样式
+ *@params   {dom}   dom元素
+ *@params   {json}  css样式名称
+ *@author   lipenghui
+ *@Email   felicity_live@sina.cn
+ *@return   null
+ **/
+function css(ele, json) {
+    if (ele.length) {
+        for (let i = 0; i < ele.length; i++) {
+            for (let attr in json) {
+                ele[i].style[attr] = json[attr];
+            }
+        }
+    } else {
+        for (let attr in json) {
+            ele.style[attr] = json[attr];
+        }
+    }
+}
+
+
+
+/** 操作localStorage
+ *  Storage.get(key)    获取单个存储对象
+ *  Storage.get()       获取所有存储对象
+ *  Storage.set(key, vaule)       设置单个存储对象
+ *  Storage.set({key: valye, key: value})       设置多个存储对象
+ *  Storage.clear()     清空所有存储对象
+ *  Storage.remove(key)     删除存储对象
+ **/
+class Storage {
+    constructor() {
+        this.storage = window.localStorage;
+    }
+
+    get(key) {
+        if (!key) {
+            let ret = {};
+            this.each((key, val) => {
+                ret[key] = val;
+            });
+            return ret;
+        }
+        return this.deserialize(this.storage.getItem(key));
+    }
+
+    set(key, val) {
+        if (key && !this.isJSON(key)) this.storage.setItem(key, JSON.stringify(val));
+        else
+            for (let a in key) this.set(a, key[a]);
+    }
+
+    remove(key) {
+        this.storage.removeItem(key);
+    }
+
+    clear() {
+        this.storage.clear();
+    }
+
+    has(key) {
+        return Object.hasOwnProperty.call(this.get(), key);
+    }
+
+    isJSON(obj) {
+        return typeof obj === 'object' && Object.prototype.toString.call(obj).toLowerCase() === '[object object]' && !obj.length;
+    }
+
+    deserialize(value) {
+        if (typeof value !== 'string') {
+            return undefined;
+        }
+        try {
+            return JSON.parse(value);
+        } catch (e) {
+            return value || undefined;
+        }
+    }
+
+    each(callback) {
+        for (let i = 0; i < this.storage.length; i++) {
+            let key = this.storage.key(i);
+            callback(key, this.get(key));
+        }
+    }
+}
+
+
+
+/** 数组排序
+ *@params   {arr}   排序的数组
+ *@params   {state} 排序的类型
+ *@author   lipenghui
+ *@Email   felicity_live@sina.cn
+ *@return   arr 排序后的数组
+ **/
+function sort(arr, state = 1) {
+    return arr.sort((a, b) => {
+        switch (state) {
+            case 1:
+                return a - b;
+            case 2:
+                return b - a;
+            case 3:
+                return Math.random() - 0.5;
+            default:
+                return arr;
+        }
+    });
+}
+
+
+
+/** 获取url参数
+ *@params   {url}   查询的url链接
+ *@author   lipenghui
+ *@Email   felicity_live@sina.cn
+ *@return   url对象
+ **/
+function getUrlAllParams(url) {
+    var url = url ? url : window.location.href;
+    var _pa = url.substring(url.indexOf('?') + 1);
+    var _arrS = _pa.split('&');
+    var _rs = {};
+    for (var i = 0, _len = _arrS.length; i < _len; i++) {
+        var pos = _arrS[i].indexOf('=');
+        if (pos == -1) continue;
+        _rs[_arrS[i].substring(0, pos)] = _arrS[i].substring(pos + 1);
+    }
+    return _rs;
+}
+
+
+
+/**
+ * 去除空格
+ * @param  {str}
+ * @param  {type} 
+ *       type:  1:所有空格  2:前后空格  3:前空格 4:后空格
+ *@Email   felicity_live@sina.cn
+ * @return {String}
+ */
+function trim(str, type) {
+    type = type || 1;
+    switch (type) {
+        case 1:
+            return str.replace(/\s+/g, '');
+        case 2:
+            return str.replace(/(^\s*)|(\s*$)/g, '');
+        case 3:
+            return str.replace(/(^\s*)/g, '');
+        case 4:
+            return str.replace(/(\s*$)/g, '');
+        default:
+            return str;
+    }
+}
+
+
+
+/** 获取url链接最后一层目录
+ *@author    lipenghui
+ *@Email     felicity_live@sina.cn
+ *@return    url
+ **/
+function getUrlLast() {
+    let url = window.location.href;
+    let urlList = url.split('').reverse();
+    var str = [];
+    for (let i = 0; i < urlList.length; i++) {
+        if (urlList[i] === '/') break;
+        str.push(urlList[i]);
+    }
+    return str.reverse().join('');
+}
